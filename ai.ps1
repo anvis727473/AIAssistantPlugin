@@ -2,10 +2,9 @@ param(
     [string]$Prompt
 )
 
-$ApiKey = $env:OPENAI_API_KEY
+$ApiKey = $env:OPENROUTER_API_KEY
 if (-not $ApiKey) {
-    Write-Host "Erro: Defina OPENAI_API_KEY" -ForegroundColor Red
-    Write-Host "Exemplo: `$env:OPENAI_API_KEY='sua-chave-aqui'" -ForegroundColor Yellow
+    Write-Host "Erro: OPENROUTER_API_KEY nao configurada" -ForegroundColor Red
     exit 1
 }
 
@@ -14,7 +13,7 @@ if (-not $Prompt) {
 }
 
 $body = @{
-    model = "gpt-4"
+    model = "openai/gpt-4"
     messages = @(
         @{
             role = "system"
@@ -28,14 +27,14 @@ $body = @{
     temperature = 0.7
 } | ConvertTo-Json -Depth 10
 
-$response = Invoke-RestMethod -Uri "https://api.openai.com/v1/chat/completions" -Method Post -Headers @{
+$response = Invoke-RestMethod -Uri "https://openrouter.ai/api/v1/chat/completions" -Method Post -Headers @{
     "Content-Type" = "application/json"
     "Authorization" = "Bearer $ApiKey"
 } -Body $body
 
 $json = $response.choices[0].message.content | ConvertFrom-Json
 
-Write-Host "`nResposta da IA:" -ForegroundColor Cyan
+Write-Host "`nResposta:" -ForegroundColor Cyan
 Write-Host $json.explanation -ForegroundColor Green
 
 if ($json.actions.Count -gt 0) {

@@ -4,12 +4,10 @@ Ferramenta de linha de comando para gerar código Verse e ações JSON.
 
 ## Configuração
 
-1. Defina sua API key:
-```powershell
-$env:OPENAI_API_KEY="sua-chave-aqui"
-```
+Usa sua OPENROUTER_API_KEY (já configurada).
 
-2. Execute:
+## Uso
+
 ```powershell
 .\ai.ps1 "crie um spawner de armas"
 ```
