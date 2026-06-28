@@ -32,21 +32,38 @@ Action := struct {
 # Parses AI JSON response and executes editor actions
 ActionExecutor := class<editor>:
 
+    # Get all actors in the level as context for AI
+    GetLevelContext() : string:
+        AllActors := EditorLevelEditorActorSubsystem.GetAllLevelActors()
+        Context: string = "Current level actors:\n"
+        
+        for (Actor: AllActors):
+            ActorName := GetName(Actor)
+            ActorClass := GetClass(Actor)
+            ActorLocation := GetActorLocation(Actor)
+            Context += ActorName & " (" & ActorClass & ") at " & ToString(ActorLocation) & "\n"
+        
+        return Context
+
     # Parse and execute AI response JSON
     Execute(AIResponse: string) <suspends>: string:
         VerseString := AIResponse
-        VerseCode := ExtractField(VerseCode, VerseString, "verse_code")
+        VerseCode := ExtractField("verse_code", VerseString)
         Actions := ExtractActions(VerseString)
+        Explanation := ExtractField("explanation", VerseString)
         
         LogOutput: string = ""
         
+        if (Explanation /= ""):
+            LogOutput += Explanation & "\n\n"
+        
         if (VerseCode /= ""):
-            LogOutput += "Verse code generated.\n"
+            LogOutput += "Verse code generated:\n" & VerseCode & "\n\n"
         
         for (Action: Actions):
             LogOutput += ExecuteAction(Action)
         
-        return (LogOutput)
+        return LogOutput
 
     # Extract a string field from JSON
     ExtractField(Field: string, Json: string) : string:
@@ -117,12 +134,18 @@ ActionExecutor := class<editor>:
     ExecuteAction(Action: Action) <suspends>: string:
         if (Action.ActionType = "spawn_device"):
             return SpawnDevice(Action)
+        else if (Action.ActionType = "modify_actor"):
+            return ModifyActor(Action)
+        else if (Action.ActionType = "delete_actor"):
+            return DeleteActor(Action)
+        else if (Action.ActionType = "create_folder"):
+            return CreateFolder(Action)
         
-        return "Unknown action type: " & Action.ActionType & "\n"
+        return "Unknown action: " & Action.ActionType & "\n"
 
     # Spawn a device at location
     SpawnDevice(Action: Action) <suspends>: string:
-        AssetPath := "/Game/Devices/" & Action.DeviceClass
+        AssetPath := "/Game/" & Action.DeviceClass
         
         if (not EditorAssetLibrary.IsAssetLoaded(AssetPath)):
             EditorAssetLibrary.LoadAsset(AssetPath)
@@ -134,6 +157,36 @@ ActionExecutor := class<editor>:
         )
         
         if (SpawnedActor = valid):
-            return "Spawned: " & Action.DeviceClass & " at " & ToString(Action.Location) & "\n"
+            return "Spawned: " & Action.DeviceClass & "\n"
         
         return "Failed to spawn: " & Action.DeviceClass & "\n"
+
+    # Modify an existing actor
+    ModifyActor(Action: Action) <suspends>: string:
+        # Find actor by name
+        AllActors := EditorLevelEditorActorSubsystem.GetAllLevelActors()
+        
+        for (Actor: AllActors):
+            if (GetName(Actor) = Action.DeviceClass):
+                SetActorLocation(Actor, Action.Location)
+                SetActorRotation(Actor, Action.Rotation)
+                return "Modified: " & Action.DeviceClass & "\n"
+        
+        return "Actor not found: " & Action.DeviceClass & "\n"
+
+    # Delete an actor
+    DeleteActor(Action: Action) <suspends>: string:
+        AllActors := EditorLevelEditorActorSubsystem.GetAllLevelActors()
+        
+        for (Actor: AllActors):
+            if (GetName(Actor) = Action.DeviceClass):
+                EditorLevelEditorActorSubsystem.DestroyActor(Actor)
+                return "Deleted: " & Action.DeviceClass & "\n"
+        
+        return "Actor not found: " & Action.DeviceClass & "\n"
+
+    # Create folder in content browser
+    CreateFolder(Action: Action) <suspends>: string:
+        FolderPath := "/Game/" & Action.DeviceClass
+        EditorAssetLibrary.MakeDirectory(FolderPath)
+        return "Created folder: " & FolderPath & "\n"

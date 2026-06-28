@@ -73,6 +73,11 @@ Open the **Graph** tab in the Widget Blueprint.
 - Get `InputPrompt` → `Get Text (Text)` node
 - Store in variable: `UserPrompt`
 
+#### Node 2.5: Get Level Context
+- Call `GetLevelContext()` from ActionExecutor
+- Store in variable: `LevelContext`
+- This reads all actors in the level and sends them to the AI
+
 #### Node 3: Web Request
 - Add node: `Request` (from UEFN Web Request plugin)
 - Method: POST
@@ -86,7 +91,7 @@ Open the **Graph** tab in the Widget Blueprint.
   "model": "gpt-4",
   "messages": [
     {"role": "system", "content": "[PASTE CONTENT FROM SystemPrompt.txt]"},
-    {"role": "user", "content": "{UserPrompt}"}
+    {"role": "user", "content": "Current level state:\n{LevelContext}\n\nUser request: {UserPrompt}"}
   ],
   "temperature": 0.7
 }
@@ -115,6 +120,7 @@ Open the **Graph** tab in the Widget Blueprint.
 ### Variable List
 Create these variables in the Blueprint:
 - `UserPrompt: Text`
+- `LevelContext: String`
 - `VerseCode: String`
 - `ActionsArray: Array of Structs`
 - `Explanation: String`
