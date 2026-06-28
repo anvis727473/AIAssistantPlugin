@@ -6,29 +6,34 @@ Integra uma IA diretamente no Unreal Editor for Fortnite. Você digita um prompt
 
 ## Integração com MiMoCode e OpenCode
 
-O plugin já está instalado como skill em:
+### Comando `/uefn`
 
-- **MiMoCode**: `C:\Users\andre\.config\mimocode\skills\uefn-ai-assistant\`
-- **OpenCode**: `C:\Users\andre\.config\opencode\skills\uefn-ai-assistant\`
-
-### Como usar
-
-No MiMoCode ou OpenCode, digite:
+Dentro do MiMoCode ou OpenCode, digite:
 
 ```
-/uefn-ai-assistant create a deathrun map
+/uefn create a deathrun map with 5 stages
 ```
 
-Ou simplemente pergunte sobre UEFN:
+Ou qualquer coisa sobre UEFN:
 
 ```
-How do I spawn a player spawner in UEFN?
+/uefn spawn a weapon spawner at center
+/uefn write a countdown timer in verse
+/uefn create an arena with 4 spawn points
 ```
 
-O skill vai:
-1. Entender que você está trabalhando com UEFN
-2. Gerar o código Verse apropriado
-3. Criar as ações JSON para o plugin
+### Como funciona
+
+O comando `/uefn`:
+1. Entende seu pedido
+2. Gera código Verse (se precisar)
+3. Cria JSON com as ações (devices a spawnar)
+4. Você copia o JSON e usa no plugin UEFN
+
+### Arquivos instalados
+
+- **MiMoCode**: `C:\Users\andre\.config\mimocode\commands\uefn.md`
+- **OpenCode**: `C:\Users\andre\.config\opencode\commands\uefn.md`
 
 ---
 
